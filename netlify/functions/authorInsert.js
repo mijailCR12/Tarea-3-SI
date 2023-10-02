@@ -8,12 +8,15 @@ exports.handler = async (event, context) => {
   if (event.httpMethod == "OPTIONS") {
     return { statusCode: 200, headers, body: "OK" };
   }
-	
+  
   try {
-    const client = await clientPromise;
-    const id = parseInt(event.path.split("/").reverse()[0]);
-	
-    const authors = await client.db("tarea").collection("books").find({}).toArray();
+	const client = await clientPromise;
+	const data = JSON.parse(event.body);
+	data._id = parseInt(data._id)
+    console.log(event.body)
+
+	await client.db("tarea").collection("authors").insertOne(data);
+
     return { statusCode: 200, headers, body: 'OK'};
   } catch (error) {
     console.log(error);

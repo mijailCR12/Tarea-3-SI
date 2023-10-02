@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
     const client = await clientPromise;
     const id = parseInt(event.path.split("/").reverse()[0]);
 	
-    const authors = await client.db("tarea").collection("books").find({}).toArray();
+    const authors = await client.db("tarea").collection("publishers").find({}).toArray();
     return { statusCode: 200, headers, body: 'OK'};
   } catch (error) {
     console.log(error);
