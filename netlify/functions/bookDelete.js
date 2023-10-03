@@ -1,22 +1,63 @@
-"use strict"
+"use strict";
 
-const clientPromise = require('./mongoDB');
-const headers = require('./headersCORS');
+const { MongoClient } = require("mongodb");
+const headers = require("./headersCORS");
 
 exports.handler = async (event, context) => {
-
-  if (event.httpMethod == "OPTIONS") {
+  if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers, body: "OK" };
   }
-	
+
   try {
-    const client = await clientPromise;
+    // Establece la conexión a MongoDB
+    const client = new MongoClient(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    await client.connect();
+
     const id = parseInt(event.path.split("/").reverse()[0]);
-	
-    const authors = await client.db("tarea").collection("books").find({}).toArray();
-    return { statusCode: 200, headers, body: 'OK'};
+
+    // Intenta eliminar el libro con el ID proporcionado
+    const result = await client.db("tarea").collection("books").findOneAndDelete({ _id: id });
+
+    if (result.value) {
+      console.log("Libro eliminado:", result.value);
+      return { statusCode: 200, headers, body: JSON.stringify(result.value) };
+    } else {
+      console.log("Libro no encontrado");
+      return { statusCode: 404, headers, body: "Libro no encontrado" };
+    }
   } catch (error) {
-    console.log(error);
-    return { statusCode: 422, headers, body: JSON.stringify(error) };
+    console.error("Error al eliminar el libro:", error);
+    return { statusCode: 500, headers, body: JSON.stringify(error) };
+  } finally {
+    // Cierra la conexión a MongoDB después de realizar la operación
+    if (client) {
+      client.close();
+    }
   }
 };
+
+// "use strict"
+
+// const clientPromise = require('./mongoDB');
+// const headers = require('./headersCORS');
+
+// exports.handler = async (event, context) => {
+
+//   if (event.httpMethod == "OPTIONS") {
+//     return { statusCode: 200, headers, body: "OK" };
+//   }
+	
+//   try {
+//     const client = await clientPromise;
+//     const id = parseInt(event.path.split("/").reverse()[0]);
+	
+//     const authors = await client.db("tarea").collection("books").findOneAndDelete({_id:id});
+//     return { statusCode: 200, headers, body: JSON.stringify(authors)};
+//   } catch (error) {
+//     console.log(error);
+//     return { statusCode: 422, headers, body: JSON.stringify(error) };
+//   }
+// };
