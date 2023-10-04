@@ -13,9 +13,9 @@ exports.handler = async (event, context) => {
     const client = await clientPromise;
     const id = parseInt(event.path.split("/").reverse()[0]);
 
-    const authors = await client.db("tarea").collection("publishers").find({_id:id}).toArray();
+    const publishers = await client.db("tarea").collection("publishers").find({_id:id}).toArray();
 
-    return { statusCode: 200, headers, body: JSON.stringify(authors)};
+    return { statusCode: 200, headers, body: JSON.stringify(publishers)};
   } catch (error) {
     console.log(error);
     return { statusCode: 400, headers, body: JSON.stringify(error) };
