@@ -15,8 +15,11 @@ exports.handler = async (event, context) => {
     const data = JSON.parse(event.body);
 	console.log(event.body)
 
-  const authors = await client.db("tarea").collection("books").find({}).toArray();
-    return { statusCode: 200, headers, body: 'OK'};
+  const result = await client.db("tarea").collection("authors").updateOne(
+    { _id: id },
+    { $set: data } // Usamos los datos recibidos para actualizar el libro
+  );    
+  return { statusCode: 200, headers, body: 'OK'};
   } catch (error) {
     console.log(error);
     return { statusCode: 422, headers, body: JSON.stringify(error) };
